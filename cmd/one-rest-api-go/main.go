@@ -32,6 +32,8 @@ func main() {
 
 	// Define a simple route that responds with a welcome message
 	router.HandleFunc("POST /api/students", student.Create(storage))
+	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
+	router.HandleFunc("GET /api/students", student.GetList(storage))
 
 	// Create an HTTP server with the loaded configuration
 	server := http.Server{

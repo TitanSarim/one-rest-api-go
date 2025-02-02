@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator"
 	"github.com/titanSarim/one-rest-api-go/internal/storage"
@@ -56,3 +57,45 @@ func Create(storage storage.Storage) http.HandlerFunc{
 }
 
 
+func GetById(storage storage.Storage) http.HandlerFunc{
+	return func(res http.ResponseWriter, req *http.Request) {
+
+		id := req.PathValue("id")
+
+		slog.Info("gettitng a student", slog.String("id", id))
+
+		parsedId, err := strconv.ParseInt(id, 10, 64)
+
+		if err!= nil || parsedId <= 0 {
+            response.WriteJson(res, http.StatusBadRequest, response.GeneralError(fmt.Errorf("invalid id")))
+            return
+        }
+
+		student, err := storage.GetStudentById(parsedId)
+
+		if err != nil{		
+			slog.Error("error getting user", slog.String("id", id))
+			response.WriteJson(res, http.StatusInternalServerError, response.GeneralError(err))
+            return
+		}
+
+		response.WriteJson(res, http.StatusOK, student)
+	}
+}
+
+func GetList(storage storage.Storage) http.HandlerFunc{
+	return func(res http.ResponseWriter, req *http.Request) {
+
+		slog.Info("getting all students")
+
+		students, err := storage.GetStudents()
+
+		if(err != nil){
+			slog.Error("error getting users")
+            response.WriteJson(res, http.StatusInternalServerError, response.GeneralError(err))
+            return
+		}
+
+		response.WriteJson(res, http.StatusOK, students)
+	}
+}
