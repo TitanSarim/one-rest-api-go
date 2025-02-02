@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/titanSarim/one-rest-api-go/internal/config"
 	"github.com/titanSarim/one-rest-api-go/internal/http/handlers/student"
+	"github.com/titanSarim/one-rest-api-go/internal/storage/sqlite"
 )
 
 func main() {
@@ -19,6 +21,11 @@ func main() {
 	cfg := config.MustLoad()
 
 	// Database setup would go here (currently missing)
+	_, err := sqlite.New(cfg)
+	if(err != nil){
+		log.Fatalf("Error creating database: %v", err.Error())
+	}
+	slog.Info("Storage initialized", slog.String("Env", cfg.Env), slog.String("version", "1.0.0"))
 
 	// Create a new router (multiplexer) to handle HTTP routes
 	router := http.NewServeMux()
@@ -60,7 +67,7 @@ func main() {
 	defer cancel() // Ensure the context is canceled to free resources
 
 	// Gracefully shutdown the server
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		slog.Error("Failed to shutdown server", slog.String("error", err.Error()))
 	}
