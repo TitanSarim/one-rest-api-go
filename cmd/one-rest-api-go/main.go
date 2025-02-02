@@ -21,7 +21,7 @@ func main() {
 	cfg := config.MustLoad()
 
 	// Database setup would go here (currently missing)
-	_, err := sqlite.New(cfg)
+	storage, err := sqlite.New(cfg)
 	if(err != nil){
 		log.Fatalf("Error creating database: %v", err.Error())
 	}
@@ -31,7 +31,7 @@ func main() {
 	router := http.NewServeMux()
 
 	// Define a simple route that responds with a welcome message
-	router.HandleFunc("POST /api/students", student.Create())
+	router.HandleFunc("POST /api/students", student.Create(storage))
 
 	// Create an HTTP server with the loaded configuration
 	server := http.Server{

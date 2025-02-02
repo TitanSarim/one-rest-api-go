@@ -7,11 +7,11 @@ import (
 	"github.com/titanSarim/one-rest-api-go/internal/config"
 )
 
-type sqlite struct {
+type Sqlite struct {
 	Db *sql.DB
 }
 
-func New(cfg *config.Config) (*sqlite, error) {
+func New(cfg *config.Config) (*Sqlite, error) {
 	db, err := sql.Open("sqlite3", cfg.StoragePath)
 	if err!= nil {
         return nil, err
@@ -28,7 +28,31 @@ func New(cfg *config.Config) (*sqlite, error) {
 		return nil, err
 	}
 
-	return &sqlite{
+	return &Sqlite{
 		Db: db,
 	}, nil
+}
+
+func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error){
+	stmt, err := s.Db.Prepare("INSERT INTO students (name, email, age) VALUES (?, ?, ?)")
+
+	if(err != nil){
+		return 0, err
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(name, email, age)
+
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
