@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/titanSarim/one-rest-api-go/internal/config"
+	"github.com/titanSarim/one-rest-api-go/internal/http/handlers/student"
 )
 
 func main() {
@@ -23,9 +24,7 @@ func main() {
 	router := http.NewServeMux()
 
 	// Define a simple route that responds with a welcome message
-	router.HandleFunc("GET /", func(res http.ResponseWriter, req *http.Request) {
-		res.Write([]byte("Welcome to students API"))
-	})
+	router.HandleFunc("POST /api/students", student.Create())
 
 	// Create an HTTP server with the loaded configuration
 	server := http.Server{
